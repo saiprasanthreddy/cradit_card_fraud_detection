@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FraudShield — AI Fraud Detection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- Particle canvas background -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- Scanline overlay -->
+  <div class="scanlines"></div>
+
+  <div class="app">
+
+    <!-- ══ HEADER ══ -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo-mark">
+          <div class="logo-hex">
+            <svg viewBox="0 0 40 46" fill="none">
+              <path d="M20 1L38 11V35L20 45L2 35V11L20 1Z" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M20 8L32 15V29L20 36L8 29V15L20 8Z" fill="currentColor" opacity="0.15"/>
+              <path d="M13 22L17.5 26.5L27 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="logo-text">
+            <span class="logo-name">FRAUDSHIELD</span>
+            <span class="logo-sub">NEURAL DETECTION ENGINE v3</span>
+          </div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-stat">
+          <span class="hs-label">RECALL</span>
+          <span class="hs-value">84.7%</span>
+        </div>
+        <div class="header-stat">
+          <span class="hs-label">PR-AUC</span>
+          <span class="hs-value">0.877</span>
+        </div>
+        <div class="header-stat">
+          <span class="hs-label">ENSEMBLE</span>
+          <span class="hs-value">3-MODEL</span>
+        </div>
+        <div class="status-pill" id="statusPill">
+          <span class="sp-dot"></span>
+          <span class="sp-text">READY</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ══ MAIN CONTENT ══ -->
+    <main class="main">
+
+      <!-- LEFT COLUMN: Input Form -->
+      <section class="panel panel-form">
+        <div class="panel-header">
+          <span class="ph-label">TRANSACTION INPUT</span>
+          <span class="ph-line"></span>
+        </div>
+
+        <!-- Amount -->
+        <div class="field-block">
+          <label class="field-label">TRANSACTION AMOUNT</label>
+          <div class="amount-wrap">
+            <span class="amount-prefix">$</span>
+            <input type="number" id="amount" class="amount-field"
+                   placeholder="0.00" min="0" max="50000" step="0.01" autocomplete="off"/>
+            <span class="amount-suffix">USD</span>
+          </div>
+          <div class="field-error" id="amountError"></div>
+          <div class="amount-presets">
+            <span class="preset-label">QUICK:</span>
+            <button class="preset-btn" onclick="setAmount(25)">$25</button>
+            <button class="preset-btn" onclick="setAmount(150)">$150</button>
+            <button class="preset-btn" onclick="setAmount(850)">$850</button>
+            <button class="preset-btn" onclick="setAmount(3200)">$3,200</button>
+            <button class="preset-btn" onclick="setAmount(9999)">$9,999</button>
+          </div>
+        </div>
+
+        <!-- Transaction Type -->
+        <div class="field-block">
+          <label class="field-label">TRANSACTION TYPE</label>
+          <div class="choice-grid cols3">
+            <button class="choice-btn active" data-group="txnType" data-val="pos" onclick="pick('txnType','pos',this)">
+              <span class="cb-icon">🏪</span>
+              <span class="cb-text">POS / Store</span>
+              <span class="cb-risk low">LOW RISK</span>
+            </button>
+            <button class="choice-btn" data-group="txnType" data-val="online" onclick="pick('txnType','online',this)">
+              <span class="cb-icon">🌐</span>
+              <span class="cb-text">Online</span>
+              <span class="cb-risk med">MOD RISK</span>
+            </button>
+            <button class="choice-btn" data-group="txnType" data-val="atm" onclick="pick('txnType','atm',this)">
+              <span class="cb-icon">🏧</span>
+              <span class="cb-text">ATM</span>
+              <span class="cb-risk low">LOW RISK</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div class="field-block">
+          <label class="field-label">TRANSACTION LOCATION</label>
+          <div class="choice-grid cols2">
+            <button class="choice-btn active" data-group="location" data-val="domestic" onclick="pick('location','domestic',this)">
+              <span class="cb-icon">🏠</span>
+              <span class="cb-text">Domestic</span>
+              <span class="cb-risk low">LOW RISK</span>
+            </button>
+            <button class="choice-btn" data-group="location" data-val="international" onclick="pick('location','international',this)">
+              <span class="cb-icon">✈️</span>
+              <span class="cb-text">International</span>
+              <span class="cb-risk high">HIGH RISK</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Behavior -->
+        <div class="field-block">
+          <label class="field-label">SPENDING BEHAVIOR</label>
+          <div class="choice-grid cols2">
+            <button class="choice-btn active" data-group="behavior" data-val="usual" onclick="pick('behavior','usual',this)">
+              <span class="cb-icon">✓</span>
+              <span class="cb-text">Normal Pattern</span>
+              <span class="cb-risk low">NORMAL</span>
+            </button>
+            <button class="choice-btn warn" data-group="behavior" data-val="unusual" onclick="pick('behavior','unusual',this)">
+              <span class="cb-icon">⚠</span>
+              <span class="cb-text">Unusual Pattern</span>
+              <span class="cb-risk high">SUSPICIOUS</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Time -->
+        <div class="field-block">
+          <label class="field-label">TIME OF TRANSACTION</label>
+          <div class="time-block">
+            <div class="time-display" id="timeDisplay">
+              <span class="td-clock">🕐</span>
+              <span id="timeAutoText">Loading...</span>
+              <button class="td-override" id="overrideBtn" onclick="toggleTimeOverride()">OVERRIDE</button>
+            </div>
+            <div class="time-slider-wrap" id="timeSliderWrap">
+              <input type="range" id="timeSlider" min="0" max="86400" step="900" value="43200" oninput="updateSlider()"/>
+              <div class="slider-labels">
+                <span>12:00 AM</span>
+                <span class="slider-current" id="sliderCurrent">12:00 PM</span>
+                <span>11:59 PM</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Risk Preview Bar -->
+        <div class="risk-preview-block">
+          <div class="rpb-header">
+            <span class="rpb-label">PRE-ANALYSIS RISK SCORE</span>
+            <span class="rpb-val" id="preRiskVal">—</span>
+          </div>
+          <div class="rpb-track">
+            <div class="rpb-fill" id="preRiskFill"></div>
+            <div class="rpb-segments">
+              <span class="seg low">LOW</span>
+              <span class="seg med">MEDIUM</span>
+              <span class="seg high">HIGH</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">
+          <span class="ab-inner">
+            <span class="ab-text" id="abText">ANALYZE TRANSACTION</span>
+            <svg class="ab-arrow" viewBox="0 0 24 24" fill="none">
+              <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="ab-shine"></span>
+        </button>
+
+      </section>
+
+      <!-- RIGHT COLUMN: Results + History -->
+      <section class="panel panel-results">
+
+        <!-- Result idle state -->
+        <div class="result-idle" id="resultIdle">
+          <div class="idle-graphic">
+            <div class="idle-rings">
+              <div class="ir ir1"></div>
+              <div class="ir ir2"></div>
+              <div class="ir ir3"></div>
+            </div>
+            <div class="idle-center">
+              <svg viewBox="0 0 60 60" fill="none" width="40" height="40">
+                <path d="M30 5L52 18V42L30 55L8 42V18L30 5Z" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+                <circle cx="30" cy="30" r="8" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+              </svg>
+            </div>
+          </div>
+          <p class="idle-text">Enter transaction details and click<br/><strong>ANALYZE TRANSACTION</strong></p>
+          <p class="idle-sub">3-model ensemble · XGBoost + Random Forest + LightGBM</p>
+        </div>
+
+        <!-- Result active state -->
+        <div class="result-active" id="resultActive">
+
+          <!-- Verdict -->
+          <div class="verdict-block" id="verdictBlock">
+            <div class="verdict-icon" id="verdictIcon"></div>
+            <div class="verdict-info">
+              <div class="verdict-title" id="verdictTitle"></div>
+              <div class="verdict-sub" id="verdictSub"></div>
+            </div>
+            <div class="risk-badge-large" id="riskBadgeLarge"></div>
+          </div>
+
+          <!-- Gauge + probability -->
+          <div class="gauge-section">
+            <div class="gauge-wrap">
+              <canvas id="gaugeCanvas" width="240" height="140"></canvas>
+              <div class="gauge-center-text">
+                <div class="gct-pct" id="gctPct">0%</div>
+                <div class="gct-label">FRAUD PROB.</div>
+              </div>
+            </div>
+            <div class="gauge-stats">
+              <div class="gs-row">
+                <span class="gsr-label">ML Base Score</span>
+                <span class="gsr-val" id="gsBase">—</span>
+              </div>
+              <div class="gs-row">
+                <span class="gsr-label">Final Adjusted</span>
+                <span class="gsr-val" id="gsFinal">—</span>
+              </div>
+              <div class="gs-row">
+                <span class="gsr-label">Decision Threshold</span>
+                <span class="gsr-val" id="gsThr">—</span>
+              </div>
+              <div class="gs-row">
+                <span class="gsr-label">Verdict</span>
+                <span class="gsr-val" id="gsVerdict">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Component scores -->
+          <div class="component-block">
+            <div class="cb-header">SIGNAL BREAKDOWN</div>
+            <div class="component-bars" id="componentBars"></div>
+          </div>
+
+          <!-- Reasons -->
+          <div class="reasons-block">
+            <div class="rb-header">DETECTION SIGNALS</div>
+            <div class="reasons-list" id="reasonsList"></div>
+          </div>
+
+          <!-- Model weights -->
+          <div class="model-weights-block">
+            <div class="mwb-header">ENSEMBLE CONTRIBUTION</div>
+            <div class="model-weights-row" id="modelWeightsRow"></div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- ══ TRANSACTION HISTORY ══ -->
+    <section class="history-section">
+      <div class="history-header">
+        <span class="hh-title">TRANSACTION LOG</span>
+        <span class="hh-count" id="histCount">0 entries</span>
+        <button class="hh-clear" onclick="clearHistory()">CLEAR LOG</button>
+      </div>
+      <div class="history-table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>AMOUNT</th>
+              <th>TYPE</th>
+              <th>LOCATION</th>
+              <th>BEHAVIOR</th>
+              <th>ML SCORE</th>
+              <th>FINAL PROB.</th>
+              <th>VERDICT</th>
+              <th>RISK</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr class="history-empty">
+              <td colspan="9">No transactions analyzed yet</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══ INFO CARDS ══ -->
+    <section class="info-section">
+      <div class="info-card">
+        <div class="ic-icon">⚡</div>
+        <div class="ic-title">XGBoost + RF + LightGBM</div>
+        <div class="ic-body">Three-model weighted ensemble. Each model contributes proportionally to its cross-validated PR-AUC score. XGBoost uses raw (uncalibrated) probabilities — stronger on this dataset.</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-icon">🎯</div>
+        <div class="ic-title">Recall-Optimized Threshold</div>
+        <div class="ic-body">Decision threshold selected by maximizing (2×recall + precision)/3 — biasing 2× toward catching frauds. Default 0.5 misses real frauds; our threshold is computed from the actual precision-recall curve.</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-icon">🔬</div>
+        <div class="ic-title">39 Engineered Features</div>
+        <div class="ic-body">V1–V28 (PCA) + 11 new features: hour, hour_sin, hour_cos, is_night, amount_log, amount_zscore, v_mean, v_std, high_risk_v_count, scaled_Amount, scaled_Time.</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-icon">⚖️</div>
+        <div class="ic-title">scale_pos_weight ≈ 577</div>
+        <div class="ic-body">0.17% fraud rate means 577 legit transactions per fraud. scale_pos_weight=577 tells XGBoost and LightGBM to weight each fraud sample 577× more — no SMOTE, no synthetic data.</div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      FraudShield v3 · XGBoost · Random Forest · LightGBM · PR-AUC Optimized · Kaggle ULB Dataset · Recall 84.7%
+    </footer>
+
+  </div><!-- /app -->
+
+  <script src="script.js"></script>
+</body>
+</html>

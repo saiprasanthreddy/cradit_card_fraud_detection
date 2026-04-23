@@ -1,0 +1,16 @@
+# ── ML & Data ──
+pandas
+numpy
+scikit-learn
+xgboost
+lightgbm
+joblib
+matplotlib
+seaborn
+
+# ── Flask Backend ──
+flask
+flask-cors
+
+# ── Deployment ──
+gunicorn
