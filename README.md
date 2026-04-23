@@ -78,7 +78,7 @@ fraudshield/
 ├── model/                          ← All training code and saved artifacts
 │   ├── model.py                    ← Main ML training pipeline (run this first)
 │   ├── creditcard.csv              ← Kaggle dataset (download separately)
-│
+│   
 │
 ├── backend/
 │   └── app.py                      ← Flask REST API server
