@@ -1,72 +1,70 @@
-# FraudShield v3 — Credit Card Fraud Detection System
+# 🛡️ Credit Card Fraud Detection
 
-> A production-grade, ML-powered fraud detection web application built with a 3-model calibrated ensemble (XGBoost + Random Forest + LightGBM), a recall-optimized decision threshold, and a user-friendly Flask + HTML/CSS/JS interface.
+An end-to-end machine learning system for detecting fraudulent credit card transactions using an ensemble of **XGBoost, Random Forest and LightGBM**.
 
----
+## 🎯 Project Overview
 
-## Table of Contents
+This project addresses extreme class imbalance in credit card fraud detection and focuses on maximizing fraud detection recall while maintaining high precision.
 
-1. [Project Overview](#1-project-overview)
-2. [Performance Results](#2-performance-results)
-3. [Project Structure](#3-project-structure)
-4. [Quick Start — Run the Project](#4-quick-start--run-the-project)
-5. [Dataset](#5-dataset)
-6. [Feature Engineering](#6-feature-engineering)
-7. [Machine Learning Pipeline](#7-machine-learning-pipeline)
-8. [Algorithms Explained](#8-algorithms-explained)
-9. [Hyperparameter Tuning](#9-hyperparameter-tuning)
-10. [Imbalance Handling](#10-imbalance-handling)
-11. [Probability Calibration](#11-probability-calibration)
-12. [Threshold Tuning](#12-threshold-tuning)
-13. [Soft Voting Ensemble](#13-soft-voting-ensemble)
-14. [Backend API](#14-backend-api)
-15. [Frontend UI](#15-frontend-ui)
-16. [Saved Artifacts](#16-saved-artifacts)
-17. [API Reference](#17-api-reference)
-18. [Deployment Guide](#18-deployment-guide)
-19. [Design Decisions & Why](#19-design-decisions--why)
-20. [Dependencies](#20-dependencies)
+### Key Highlights
 
----
+* **284,807** real-world transactions
+* **492** fraudulent transactions
+* Extreme class imbalance of approximately **577:1**
+* Feature engineering from transaction time, amount and PCA features
+* XGBoost + Random Forest + LightGBM ensemble
+* Probability calibration using isotonic regression
+* Recall-optimized decision threshold
+* Flask REST API
+* Interactive web frontend
 
-## 1. Project Overview
+## 📊 Model Performance
 
-FraudShield v3 is a complete end-to-end fraud detection system trained on the Kaggle ULB Credit Card Fraud dataset (284,807 transactions, 492 frauds — 0.17% fraud rate). The system detects whether a given credit card transaction is fraudulent or legitimate using a three-model ensemble with calibrated probabilities and a recall-optimized decision threshold.
+| Metric    | Result |
+| --------- | -----: |
+| Recall    |   0.86 |
+| Precision |  ~0.95 |
+| F1-Score  |  ~0.90 |
+| ROC-AUC   |  ~0.98 |
+| PR-AUC    |  ~0.88 |
 
-The entire project is divided into three layers:
+## 🧰 Tech Stack
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| Model Training | Python, XGBoost, RF, LightGBM | Train ensemble, save artifacts |
-| Backend API | Python, Flask | Load models, serve predictions |
-| Frontend UI | HTML, CSS, JavaScript | Accept user input, display results |
+**Machine Learning:** Python, Scikit-learn, XGBoost, Random Forest, LightGBM
 
-**What makes this system production-ready:**
+**Data:** Pandas, NumPy
 
-- No PCA features required from the user — the system looks up the nearest real transaction internally
-- 9 engineered features on top of the base dataset
-- 3-model weighted ensemble with isotonic probability calibration
-- Recall-optimized threshold (not the default 0.5) to minimize missed frauds
-- Risk level classification (LOW / MEDIUM / HIGH) with plain-English explanations
+**Backend:** Flask, REST API
 
----
+**Frontend:** HTML, CSS, JavaScript
 
-## 2. Performance Results
+**Evaluation:** Precision, Recall, F1, ROC-AUC, PR-AUC
 
-These are the actual results obtained after training on the real Kaggle dataset:
+## 🏗️ Pipeline
 
-| Metric | Value |
-|---|---|
-| Recall | **0.86** (86% of all frauds caught) |
-| Precision | ~0.95 |
-| F1-Score | ~0.90 |
-| ROC-AUC | ~0.98 |
-| PR-AUC | ~0.88 (primary metric) |
+```text
+Raw Dataset
+     ↓
+Feature Engineering
+     ↓
+Train / Test Split
+     ↓
+XGBoost ─────────┐
+Random Forest ──┼──→ Calibrated Ensemble
+LightGBM ───────┘
+     ↓
+Threshold Optimization
+     ↓
+Fraud / Legitimate Prediction
+     ↓
+Risk Explanation
+```
 
-> **Why Recall is the most important metric here:**
-> In fraud detection, a False Negative (missing a real fraud) is far more costly than a False Positive (flagging a legitimate transaction). A missed fraud means the customer loses money with no chance of recovery. A false alarm is inconvenient but reversible. The entire threshold and tuning strategy is designed to maximize recall first.
+## 🚀 Why This Project Matters
 
-> **On the 86% Recall:** The threshold was optimized using a recall-weighted scoring formula `(2 × recall + precision) / 3`, which biases the model toward catching more fraud. Any further increase in recall would reduce precision significantly. 86% recall on a real-world dataset with 0.17% fraud rate is a strong result.
+Fraud detection is an imbalanced classification problem where missing fraudulent transactions can be costly. Therefore, the system prioritizes **recall while maintaining useful precision**, rather than relying on the default 0.5 classification threshold.
+
+> Detailed implementation, feature engineering, tuning and deployment instructions are provided below.
 
 ---
 
